@@ -29,6 +29,20 @@
 				<artifactId>mule-maven-plugin</artifactId>
 				<version>${mule.maven.plugin.version}</version>
 				<extensions>true</extensions>
+				<cloudHubDeployment>
+						<uri>https://anypoint.mulesoft.com</uri>
+						<muleVersion>4.4.0</muleVersion>
+						<applicationName>${cloudhub.application}</applicationName>
+						<environment>${anypoint.environment}</environment>
+						<workers>1</workers>
+						<objectStoreV2>true</objectStoreV2>
+						<workerType>MICRO</workerType>
+						<username>${cloudhub.username}</username>
+						<password>${cloudhub.password}</password>
+						<!-- <connectedAppClientId>9303b62256d84eafb279a9649ccbd287</connectedAppClientId> -->
+						<!-- <connectedAppClientSecret>206AAdb69c1645F8a309bFb0d88f98f8</connectedAppClientSecret> -->
+						<!-- <connectedAppGrantType>client_credentials</connectedAppGrantType> -->
+					</cloudHubDeployment>
 			</plugin>
 		</plugins>
 	</build>
