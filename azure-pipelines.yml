@@ -49,8 +49,6 @@ stages:
   jobs:
     - job: DevDeploy
       displayName: Deploy To Dev Environment
-      variables:
-      - group: Dev-Vars
       steps:
         - task: CacheBeta@0
           displayName: Cache Maven local repo
