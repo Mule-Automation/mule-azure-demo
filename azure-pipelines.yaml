@@ -1,0 +1,77 @@
+trigger:
+  branches:
+    include:
+      - master
+      - dev
+
+pool:
+  vmImage: 'ubuntu-latest'
+  
+variables: 
+- group: Maven-Vars
+- group: Deployment-Vars
+
+stages:
+- stage: BuildStage
+  displayName: Build
+  jobs:
+  - job: Build
+    displayName: Build
+    steps:
+      - task: CacheBeta@0
+        displayName: Cache Maven local repo
+        inputs:
+          key: $(Build.SourcesDirectory)/pom.xml
+          path: $(MAVEN_CACHE_FOLDER)
+    
+      - task: DownloadSecureFile@1
+        name: settings
+        displayName: Download secure file
+        inputs:
+          secureFile: 'settings.xml'
+      
+      - task: Maven@3
+        displayName: Maven Build
+        inputs:
+          mavenPomFile: 'pom.xml'
+          goals: 'clean package -DskipTests -s $(settings.secureFilePath)'
+          mavenOptions: '-Xmx3072m $(MAVEN_OPTS)'
+          publishJUnitResults: false
+          javaHomeOption: 'JDKVersion'
+          jdkVersionOption: '1.8'
+          mavenVersionOption: 'Default'
+          mavenAuthenticateFeed: false
+          effectivePomSkip: false
+          sonarQubeRunAnalysis: false
+
+- stage: DevelopmentStage
+  displayName: Deploy to Development Environment
+  dependsOn: BuildStage
+  jobs:
+    - job: DevDeploy
+      displayName: Deploy To Dev Environment
+      variables:
+      - group: Dev-Vars
+      steps:
+        - task: CacheBeta@0
+          displayName: Cache Maven local repo
+          inputs:
+            key: $(Build.SourcesDirectory)/pom.xml
+            path: $(MAVEN_CACHE_FOLDER)
+            
+        - task: DownloadSecureFile@1
+          name: settings
+          displayName: Download Settings File
+          inputs:
+            secureFile: 'settings.xml'
+
+        - task: Maven@3
+          inputs:
+           mavenPomFile: 'pom.xml'
+           goals: 'deploy -DmuleDeploy -Dcloudhub.username=$(cloudhub.username) -Dcloudhub.password=$(cloudhub.password) -Danypoint.environment=$(anypoint.environment) -DattachMuleSources -DskipMunitTests -s $(settings.secureFilePath)'
+           mavenOptions: '-Xmx3072m $(MAVEN_OPTS)'
+           publishJUnitResults: false
+           javaHomeOption: 'JDKVersion'
+           jdkVersionOption: '1.8'
+           mavenVersionOption: 'Default'
+           mavenAuthenticateFeed: false
