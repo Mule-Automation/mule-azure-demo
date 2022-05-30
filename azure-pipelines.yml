@@ -8,8 +8,7 @@ pool:
   vmImage: 'ubuntu-latest'
   
 variables: 
-- group: Maven-Vars
-- group: Deployment-Vars
+- group: Mulesoft-Group
 
 stages:
 - stage: BuildStage
